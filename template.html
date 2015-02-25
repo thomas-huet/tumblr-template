@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name='text:Disqus Shortname' content='' />
+    <meta name='text:Mapbox Token' content='' />
+    <title>{Title}{block:PostTitle} | {PostTitle}{/block:PostTitle}</title>
+    <link rel="shortcut icon" href="{Favicon}" />
+    <link rel="alternate" type="application/rss+xml" title="{Title}" href="{RSS}" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.6.0/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.6.0/mapbox-gl.css' rel='stylesheet' />
+    <style type="text/css">
+      .noa, .noa:hover {
+        text-decoration: none;
+        color: inherit;
+      }
+      figure, img {
+        margin-left: auto;
+        margin-right: auto;
+      }
+      {CustomCSS}
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <a href="{BlogURL}" class="noa"><h1>{Title}</h1></a>
+      <hr>
+      {block:Posts}
+        <a href="{Permalink}" class="noa">
+        {block:Date}
+          <small>{DayOfMonthWithZero}/{MonthNumberWithZero}/{Year} {24Hour}:{Minutes}</small>
+        {/block:Date}
+        {block:Title}
+          <h2>{Title}</h2>
+        {/block:Title}
+        {block:Photo}
+          <figure>
+            <img src="{block:PermalinkPage}{PhotoURL-HighRes}{/block:PermalinkPage}{block:IndexPage}{PhotoURL-500}{/block:IndexPage}" class="img-responsive" alt="{PhotoAlt}">
+            {block:Caption}
+              <figcaption class="text-center">{Caption}</figcaption>
+            {/block:Caption}
+          </figure>
+        {/block:Photo}
+        {block:Photoset}
+	  {Photoset}
+	  {block:Caption}
+	    <p class="text-center">{Caption}</p>
+	  {/block:Caption}
+        {/block:Photoset}
+        </a>
+        {Body}
+        <hr>
+      {/block:Posts}
+      {block:PermalinkPage}
+	{block:IfDisqusShortname}
+	  <div id="disqus_thread"></div>
+	  <script type="text/javascript">
+	    var disqus_shortname = '{text:Disqus Shortname}';
+	    var disqus_url = '{Permalink}'; 
+
+	    (function() {
+	      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+	      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+	      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	    })();
+	  </script>
+	{/block:IfDisqusShortname}
+      {/block:PermalinkPage}
+      {block:Pagination}
+        <p class="text-center">
+        {block:PreviousPage}
+          <a href="{PreviousPage}" class="noa"><i class="fa fa-backward"></i></a>
+        {/block:PreviousPage}
+        {block:NextPage}
+          <a href="{NextPage}" class="noa"><i class="fa fa-forward"></i></a>
+        {/block:NextPage}
+        </p>
+      {/block:Pagination}
+      {block:Description}
+        <footer>
+          <div id='map'></div>
+          <br/>
+          {Description}
+        </footer>
+      {/block:Description}
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+    <script>
+      mapboxgl.accessToken = '{text:Mapbox Token}';
+      if(mapboxgl.util.supported()) {
+        $.getJSON('https://www.mapbox.com/mapbox-gl-styles/styles/outdoors-v7.json', function(style) {
+          $("#map").width(600).height(400);
+          style.constants["@name"] = "{name_fr}";
+          var map = new mapboxgl.Map({
+            container: 'map',
+            style: style,
+            center: [18, 102],
+            zoom: 4,
+          });
+        });
+      }
+    </script>
+  </body>
+</html>
