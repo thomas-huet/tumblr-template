@@ -56,21 +56,6 @@
         <hr>
       </div>
       {/block:Posts}
-      {block:PermalinkPage}
-        {block:IfDisqusShortname}
-          <div id="disqus_thread"></div>
-          <script type="text/javascript">
-            var disqus_shortname = '{text:Disqus Shortname}';
-            var disqus_url = '{Permalink}'; 
-
-            (function() {
-              var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-              dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-              (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-            })();
-          </script>
-        {/block:IfDisqusShortname}
-      {/block:PermalinkPage}
       {block:Pagination}
         <p class="text-center">
         {block:PreviousPage}
@@ -85,15 +70,29 @@
         <footer>
           {block:IfMapboxToken}
           <div id='map'></div>
-          <br/>
+          <hr/>
           {/block:IfMapboxToken}
+          {block:PermalinkPage}
+            {block:IfDisqusShortname}
+              <div id="disqus_thread"></div>
+              <script type="text/javascript">
+                var disqus_shortname = '{text:Disqus Shortname}';
+                var disqus_url = '{Permalink}'; 
+
+                (function() {
+                  var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                  dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+                })();
+              </script>
+            {/block:IfDisqusShortname}
+          {/block:PermalinkPage}
           {Description}
         </footer>
       {/block:Description}
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-    {block:IfMapboxToken}
     <script>
       var geoJSON = {
         "type": "FeatureCollection",
@@ -131,6 +130,7 @@
         }
         posts[i].innerHTML = posts[i].innerHTML.replace(reg, "");
       }
+    {block:IfMapboxToken}
       finalize();
       mapboxgl.accessToken = '{text:Mapbox Token}';
       if(mapboxgl.util.supported()) {
@@ -160,7 +160,7 @@
           map.addSource('route', route);
         });
       }
-    </script>
     {/block:IfMapboxToken}
+    </script>
   </body>
 </html>
