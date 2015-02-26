@@ -134,6 +134,7 @@
       }
     {block:IfMapboxToken}
       finalize();
+      mapboxgl.config.FORCE_HTTPS = true
       mapboxgl.accessToken = '{text:Mapbox Token}';
       if(mapboxgl.util.supported()) {
         $.getJSON('https://www.mapbox.com/mapbox-gl-styles/styles/outdoors-v7.json', function(style) {
@@ -150,6 +151,17 @@
             "paint": {
               "line-color": "red",
               "line-width": 2
+            }
+          });
+          style.layers.push({
+            "id": "stops",
+            "type": "symbol",
+            "source": "route",
+            "layout": {
+              "icon-image": "marker-12",
+              "icon-offset": [0, -6]
+            },
+            "paint": {
             }
           });
           var map = new mapboxgl.Map({
