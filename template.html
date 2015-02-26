@@ -99,6 +99,7 @@
         "features": []
       };
       var path = [];
+      var center = [49, 2];
       function addPoint(lat, lng) {
         path.push([lng, lat]);
         geoJSON.features.push({
@@ -109,6 +110,7 @@
             "coordinates": [lng, lat]
           },
         });
+        center = [lat, lng];
       }
       function finalize() {
         geoJSON.features.push({
@@ -153,8 +155,8 @@
           var map = new mapboxgl.Map({
             container: 'map',
             style: style,
-            center: [18, 102],
-            zoom: 4,
+            center: center,
+            zoom: 5,
           });
           var route = new mapboxgl.GeoJSONSource({ data: geoJSON });
           map.addSource('route', route);
