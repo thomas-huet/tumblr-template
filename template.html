@@ -29,6 +29,7 @@
       <a href="{BlogURL}" class="noa"><h1>{Title}</h1></a>
       <hr>
       {block:Posts}
+      <div class="post">
         <a href="{Permalink}" class="noa">
         {block:Date}
           <small>{DayOfMonthWithZero}/{MonthNumberWithZero}/{Year} {24Hour}:{Minutes}</small>
@@ -45,29 +46,30 @@
           </figure>
         {/block:Photo}
         {block:Photoset}
-	  {Photoset}
-	  {block:Caption}
-	    <p class="text-center">{Caption}</p>
-	  {/block:Caption}
+          {Photoset}
+          {block:Caption}
+            <p class="text-center">{Caption}</p>
+          {/block:Caption}
         {/block:Photoset}
         </a>
         {Body}
         <hr>
+      </div>
       {/block:Posts}
       {block:PermalinkPage}
-	{block:IfDisqusShortname}
-	  <div id="disqus_thread"></div>
-	  <script type="text/javascript">
-	    var disqus_shortname = '{text:Disqus Shortname}';
-	    var disqus_url = '{Permalink}'; 
+        {block:IfDisqusShortname}
+          <div id="disqus_thread"></div>
+          <script type="text/javascript">
+            var disqus_shortname = '{text:Disqus Shortname}';
+            var disqus_url = '{Permalink}'; 
 
-	    (function() {
-	      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-	      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-	      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-	    })();
-	  </script>
-	{/block:IfDisqusShortname}
+            (function() {
+              var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+              dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+              (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+          </script>
+        {/block:IfDisqusShortname}
       {/block:PermalinkPage}
       {block:Pagination}
         <p class="text-center">
@@ -93,17 +95,69 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
     {block:IfMapboxToken}
     <script>
+      var geoJSON = {
+        "type": "FeatureCollection",
+        "features": []
+      };
+      var path = [];
+      function addPoint(lat, lng) {
+        path.push([lng, lat]);
+        geoJSON.features.push({
+          "type": "Feature",
+          "properties": {},
+          "geometry": {
+            "type": "Point",
+            "coordinates": [lng, lat]
+          },
+        });
+      }
+      function finalize() {
+        geoJSON.features.push({
+          "type": "Feature",
+          "properties": {},
+          "geometry": {
+            "type": "LineString",
+            "coordinates": path
+          }
+        });
+      }
+      var posts = $(".post");
+      var reg = /\[\[(\d+\.\d*), (\d+\.\d*)\]\]/g;
+      for(var i = posts.length - 1; i >= 0; --i) {
+        var match;
+        var str = $(posts[i]).text();
+        while((match = reg.exec(str)) !== null) {
+          addPoint(match[1], match[2]);
+        }
+        posts[i].innerHTML = posts[i].innerHTML.replace(reg, "");
+      }
+      finalize();
       mapboxgl.accessToken = '{text:Mapbox Token}';
       if(mapboxgl.util.supported()) {
         $.getJSON('https://www.mapbox.com/mapbox-gl-styles/styles/outdoors-v7.json', function(style) {
           $("#map").width(600).height(400);
           style.constants["@name"] = "{name_fr}";
+          style.layers.push({
+            "id": "route",
+            "type": "line",
+            "source": "route",
+            "layout": {
+              "line-join": "round",
+              "line-cap": "round"
+            },
+            "paint": {
+              "line-color": "red",
+              "line-width": 2
+            }
+          });
           var map = new mapboxgl.Map({
             container: 'map',
             style: style,
             center: [18, 102],
             zoom: 4,
           });
+          var route = new mapboxgl.GeoJSONSource({ data: geoJSON });
+          map.addSource('route', route);
         });
       }
     </script>
