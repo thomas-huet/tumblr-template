@@ -11,8 +11,8 @@
     <link rel="alternate" type="application/rss+xml" title="{Title}" href="{RSS}" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
-    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.6.0/mapbox-gl.js'></script>
-    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.6.0/mapbox-gl.css' rel='stylesheet' />
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.8.1/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.8.1/mapbox-gl.css' rel='stylesheet' />
     <style type="text/css">
       .noa, .noa:hover {
         text-decoration: none;
@@ -29,6 +29,10 @@
     <div class="container">
       <a href="{BlogURL}" class="noa"><h1>{Title}</h1></a>
       <hr>
+      {block:IfMapboxToken}
+          <div id='map'></div>
+          <hr/>
+      {/block:IfMapboxToken}
       {block:Posts}
       <div class="post">
         <a href="{Permalink}" class="noa">
@@ -69,10 +73,6 @@
       {/block:Pagination}
       {block:Description}
         <footer>
-          {block:IfMapboxToken}
-          <div id='map'></div>
-          <hr/>
-          {/block:IfMapboxToken}
           {block:PermalinkPage}
             {block:IfDisqusShortname}
               <div id="disqus_thread"></div>
@@ -102,6 +102,7 @@
       var path = [];
       var center = [49, 2];
       function addPoint(lat, lng) {
+          if(lat != center[0] || lng != center[1]) {
         path.push([lng, lat]);
         geoJSON.features.push({
           "type": "Feature",
@@ -112,6 +113,7 @@
           },
         });
         center = [lat, lng];
+          }
       }
       function finalize() {
         geoJSON.features.push({
@@ -134,27 +136,28 @@
         posts[i].innerHTML = posts[i].innerHTML.replace(reg, "");
       }
     {block:IfMapboxToken}
+    if(mapboxgl.supported({})) {
       finalize();
       mapboxgl.config.FORCE_HTTPS = true
       mapboxgl.accessToken = '{text:Mapbox Token}';
-      if(mapboxgl.util.supported()) {
         $.getJSON('https://www.mapbox.com/mapbox-gl-styles/styles/outdoors-v7.json', function(style) {
-          $("#map").width(600).height(400);
+          $("#map").width($(".container").width())
+                   .height(Math.min(400, $(window).height()/2.5));
           style.constants["@name"] = "{name_fr}";
-          style.layers.push({
-            "id": "route",
+          var layerPath = {
+            "id": "path",
             "type": "line",
             "source": "route",
             "layout": {
-              "line-join": "round",
-              "line-cap": "round"
+              //"line-join": "round",
+              //"line-cap": "round"
             },
             "paint": {
               "line-color": "red",
               "line-width": 2
             }
-          });
-          style.layers.push({
+          };
+          var layerMarkers = {
             "id": "stops",
             "type": "symbol",
             "source": "route",
@@ -164,17 +167,24 @@
             },
             "paint": {
             }
-          });
+          };
           var map = new mapboxgl.Map({
             container: 'map',
             style: style,
             center: center,
             zoom: 5,
           });
+          map.addControl(new mapboxgl.Navigation({position:"top-left"}));
           var route = new mapboxgl.GeoJSONSource({ data: geoJSON });
           map.addSource('route', route);
+
+map.on('style.load', function() {
+    map.addLayer(layerPath);
+    map.addLayer(layerMarkers);
+});
+          
         });
-      }
+    }
     {/block:IfMapboxToken}
     {block:IfAnalyticsToken}
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
