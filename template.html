@@ -11,8 +11,8 @@
     <link rel="alternate" type="application/rss+xml" title="{Title}" href="{RSS}" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
-    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.8.1/mapbox-gl.js'></script>
-    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.8.1/mapbox-gl.css' rel='stylesheet' />
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.11.0/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.11.0/mapbox-gl.css' rel='stylesheet' />
     <style type="text/css">
       .noa, .noa:hover {
         text-decoration: none;
@@ -100,9 +100,9 @@
         "features": []
       };
       var path = [];
-      var center = [49, 2];
+      var center = [2, 49];
       function addPoint(lat, lng) {
-          if(lat != center[0] || lng != center[1]) {
+          if(lat != center[1] || lng != center[0]) {
         path.push([lng, lat]);
         geoJSON.features.push({
           "type": "Feature",
@@ -112,7 +112,7 @@
             "coordinates": [lng, lat]
           },
         });
-        center = [lat, lng];
+        center = [lng, lat];
           }
       }
       function finalize() {
@@ -140,50 +140,47 @@
       finalize();
       mapboxgl.config.FORCE_HTTPS = true
       mapboxgl.accessToken = '{text:Mapbox Token}';
-        $.getJSON('https://www.mapbox.com/mapbox-gl-styles/styles/outdoors-v7.json', function(style) {
-          $("#map").width($(".container").width())
-                   .height(Math.min(400, $(window).height()/2.5));
-          style.constants["@name"] = "{name_fr}";
-          var layerPath = {
-            "id": "path",
-            "type": "line",
-            "source": "route",
-            "layout": {
-              //"line-join": "round",
-              //"line-cap": "round"
-            },
-            "paint": {
-              "line-color": "red",
-              "line-width": 2
-            }
-          };
-          var layerMarkers = {
-            "id": "stops",
-            "type": "symbol",
-            "source": "route",
-            "layout": {
-              "icon-image": "marker-12",
-              "icon-offset": [0, -6]
-            },
-            "paint": {
-            }
-          };
-          var map = new mapboxgl.Map({
-            container: 'map',
-            style: style,
-            center: center,
-            zoom: 5,
-          });
-          map.addControl(new mapboxgl.Navigation({position:"top-left"}));
-          var route = new mapboxgl.GeoJSONSource({ data: geoJSON });
-          map.addSource('route', route);
+	$("#map").width($(".container").width())
+		 .height(Math.min(400, $(window).height()/2.5));
+	var layerPath = {
+	  "id": "path",
+	  "type": "line",
+	  "source": "route",
+	  "layout": {
+	    //"line-join": "round",
+	    //"line-cap": "round"
+	  },
+	  "paint": {
+	    "line-color": "red",
+	    "line-width": 2
+	  }
+	};
+	var layerMarkers = {
+	  "id": "stops",
+	  "type": "symbol",
+	  "source": "route",
+	  "layout": {
+	    "icon-image": "marker-11",
+	    "icon-offset": [0, -5.5]
+	  },
+	  "paint": {
+	  }
+	};
+	var map = new mapboxgl.Map({
+	  container: 'map',
+	  style: 'mapbox://styles/mapbox/streets-v8',
+	  center: center,
+	  zoom: 5,
+	});
+	map.addControl(new mapboxgl.Navigation({position:"top-left"}));
+	var route = new mapboxgl.GeoJSONSource({ data: geoJSON });
 
-map.on('style.load', function() {
-    map.addLayer(layerPath);
-    map.addLayer(layerMarkers);
-});
-          
-        });
+	map.on('load', function() {
+	  map.addSource('route', route);
+	  map.addLayer(layerPath);
+	  map.addLayer(layerMarkers);
+	  //map.style.constants["@name"] = "{name_fr}";
+	});
     }
     {/block:IfMapboxToken}
     {block:IfAnalyticsToken}
