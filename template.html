@@ -141,7 +141,7 @@
       mapboxgl.config.FORCE_HTTPS = true
       mapboxgl.accessToken = '{text:Mapbox Token}';
 	$("#map").width($(".container").width())
-		 .height(Math.min(400, $(window).height()/2.5));
+		 .height($(window).height()/1.5);
 	var layerPath = {
 	  "id": "path",
 	  "type": "line",
@@ -181,6 +181,12 @@
 	  map.addLayer(layerMarkers);
 	  //map.style.constants["@name"] = "{name_fr}";
 	});
+
+       $(window).resize(function(){
+	 $("#map").width($(".container").width())
+	          .height($(window).height()/1.5);
+         map.resize();
+       })
     }
     {/block:IfMapboxToken}
     {block:IfAnalyticsToken}
